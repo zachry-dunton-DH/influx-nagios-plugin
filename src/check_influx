@@ -34,6 +34,7 @@ influx.add_option("p", "password", "Password for authentication", required=True)
 influx.add_option("d", "database", "Host name to use in the URL", required=True)
 influx.add_option("q", "query", "Query to run against InfluxDB", required=True)
 influx.add_option("m", "metric", "Name of the metric")
+influx.add_option("n", "default_value", "Default value for null")
 
 influx.enable_status("warning")
 influx.enable_status("critical")
@@ -47,8 +48,9 @@ else:
     host = host_and_port[0]
     port = host_and_port[1]
 
-
+default_value = influx.options.default_value
 result = None
+
 query = influx.options.query
 
 try:
@@ -86,6 +88,9 @@ except NameError:
     influx.unknown_error('Failed extract value from query result')
 
 metric = influx.options.metric or measurement
+
+if value == None and default_value != None:
+    value = float(default_value)
 
 influx.set_value(metric, value)
 influx.set_status_message("value of %s: %f" % (metric, value))
